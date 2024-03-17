@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .todo-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .todo-input {
+            width: calc(100% - 80px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+        }
+        .todo-button {
+            width: 80px;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .todo-item {
+            margin-bottom: 10px;
+        }
+        .todo-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .todo-item span {
+            font-size: 16px;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="todo-container">
+    <h1>Todo List</h1>
+    <form th:action="@{/addTodo}" method="post">
+        <input type="text" id="todo-input" name="todoText" class="todo-input" placeholder="Add a new todo...">
+        <button type="submit" class="todo-button">Add</button>
+    </form>
+    <ul id="todo-list">
+        <li th:each="todo : ${todos}" class="todo-item">
+            <input type="checkbox">
+            <span th:text="${todo.todoText}"></span>
+            <form th:action="@{/deleteTodo/{id}(id=${todo.id})}" method="post">
+                <input type="hidden" name="_method" value="delete"/>
+                <button class="delete-button">Delete</button>
+            </form>
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>
