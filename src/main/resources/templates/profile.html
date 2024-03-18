@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto; /* Adjusted margin to give space from top */
+            padding: 20px;
+            background-color: #fff; /* Added white background for better visibility */
+            border-radius: 5px; /* Added rounded corners for aesthetics */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
+        }
+
+        .error-message {
+            background-color: #f44336;
+            color: white;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            display: inline;
+            margin: 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/todolist"><button>Home</button></a> <!-- Moved Home button to the top -->
+    <div th:if="${errorMessage}" class="error-message">
+        <p th:text="${errorMessage}"></p>
+    </div>
+    <h1>Profile</h1>
+    <label>
+        ID : <h2 th:text="${member.memberId}"></h2>
+    </label>
+    <label>
+        Name : <h2 th:text="${member.memberName}"></h2>
+    </label>
+    <a th:href="@{/member/edit/{id}(id=${member.id})}"><button>Edit</button></a>
+    <button type="button" onclick="confirmDelete()">Delete</button>
+
+    <form id="deleteForm" th:action="@{/member/delete/{id}(id=${member.id})}" method="post">
+        <input type="hidden" name="_method" value="delete"/>
+    </form>
+
+
+</div>
+<script th:inline="javascript">
+    function confirmDelete() {
+        if (confirm('회원을 삭제하시겠습니까?')) {
+            var form = document.getElementById('deleteForm');
+            form.submit();
+        }
+    }
+</script>
+</body>
+</html>

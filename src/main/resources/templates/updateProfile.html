@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile Update</title>
+</head>
+<body>
+<h1>Update Profile</h1>
+    <form th:action="@{/member/update/{id}(id=${member.id})}" method="post">
+        <input type="hidden" name="_method" value="put"/>
+        <label> ID :
+            <input type="text" name="memberId" th:value="${member.memberId}" readonly>
+        </label>
+        <label> PW :
+            <input type="text" name="memberPw" th:value="${member.memberPw}">
+        </label>
+        <label> Name :
+            <input type="text" name="memberName" th:value="${member.memberName}">
+        </label>
+        <button >Update</button>
+    </form>
+
+</body>
+</html>
