@@ -1,6 +1,6 @@
 package com.example.todolist.todo;
 
-import com.example.todolist.member.MemberService;
+import com.example.todolist.member.Service.MemberServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,24 +13,26 @@ import java.util.List;
 public class TodoController {
 
     private final TodoService todoService;
+    private final MemberServiceImpl memberService;
 
-    @GetMapping("/")
+    @GetMapping("/todolist")
     public String index(Model model){
         List<Todo> todo = todoService.findAll();
         model.addAttribute("todos", todo);
+        model.addAttribute("memberName", todoService.findMember().getMemberName());
         return "todolist";
     }
 
     @PostMapping("/addTodo")
-    public String addTodo(@RequestParam String todoText){
+    public String addTodo(@ModelAttribute String todoText){
         todoService.save(todoText);
-        return "redirect:/";
+        return "redirect:/todolist";
     }
 
     @DeleteMapping("/deleteTodo/{id}")
     public String deleteTodo(@PathVariable("id") Long id){
         todoService.delete(id);
-        return "redirect:/";
+        return "redirect:/todolist";
     }
 
 

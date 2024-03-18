@@ -54,6 +54,9 @@
 <body>
 <div class="todo-container">
     <h1>Todo List</h1>
+    <form th:action="@{/member/profile}" method="get">
+        <button type="submit">MyProfile</button>
+    </form>
     <form th:action="@{/addTodo}" method="post">
         <input type="text" id="todo-input" name="todoText" class="todo-input" placeholder="Add a new todo...">
         <button type="submit" class="todo-button">Add</button>
