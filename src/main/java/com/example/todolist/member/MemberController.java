@@ -1,6 +1,8 @@
 package com.example.todolist.member;
 
-import com.example.todolist.member.Service.MemberServiceImpl;
+import com.example.todolist.member.dto.MemberRequestDto;
+import com.example.todolist.member.dto.MemberResponseDto;
+import com.example.todolist.member.service.MemberServiceImpl;
 import com.example.todolist.todo.Todo;
 import com.example.todolist.todo.TodoService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Controller
@@ -30,9 +31,9 @@ public class MemberController {
     - 회원가입 성공 시 Home 화면으로 이동
      */
     @PostMapping("/join")
-    public String MemberJoin(@ModelAttribute MemberDto member, Model model){
+    public String MemberJoin(@ModelAttribute MemberRequestDto.MemberJoinDto member, Model model){
         System.out.println(member.getMemberId());
-        Member m = memberService.join(member);
+        MemberResponseDto.MemberJoinDto m = memberService.join(member);
         if (m != null) {
             return "redirect:/";
         } else {
@@ -47,14 +48,14 @@ public class MemberController {
     - 로그인 실패 시 에러 띄우기
      */
     @PostMapping("/login")
-    public String MemberLogin(@ModelAttribute MemberDto member, Model model){
-         String name = memberService.login(member);
-         if (name == null) {
+    public String MemberLogin(@ModelAttribute MemberRequestDto.MemberLoginDto member, Model model){
+         MemberResponseDto.MemberLoginDto name = memberService.login(member);
+         if (name.getMemberName() == null) {
              model.addAttribute("errorMessage", "없는 아이디거나 비밀번호가 일치하지 않습니다.");
              return "login";
          } else{
              List<Todo> todos = todoService.findAll();
-             model.addAttribute("memberName", name);
+             model.addAttribute("memberName", name.getMemberName());
              model.addAttribute("todo", todos);
              return "todolist";
          }
@@ -66,7 +67,7 @@ public class MemberController {
      */
     @GetMapping("/profile")
     public String MemberProfile(Model model){
-        Member m = memberService.profile();
+        MemberResponseDto.MemberFindDto m = memberService.profile();
         if (m!=null){
             model.addAttribute("member", m);
             return "profile";
@@ -97,7 +98,7 @@ public class MemberController {
     - 수정사항 업데이트
      */
     @PutMapping("/update/{id}")
-    public String ProfileUpdate(@ModelAttribute MemberDto member, @PathVariable Long id){
+    public String ProfileUpdate(@ModelAttribute MemberRequestDto.MemberUpdateDto member, @PathVariable Long id){
         memberService.update(member,id);
         return "redirect:/member/profile";
     }

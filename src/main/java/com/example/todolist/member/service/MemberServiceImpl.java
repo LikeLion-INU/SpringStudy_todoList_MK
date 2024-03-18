@@ -1,8 +1,9 @@
-package com.example.todolist.member.Service;
+package com.example.todolist.member.service;
 
 import com.example.todolist.member.Member;
-import com.example.todolist.member.MemberDto;
+import com.example.todolist.member.dto.MemberRequestDto;
 import com.example.todolist.member.MemberRepository;
+import com.example.todolist.member.dto.MemberResponseDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,21 +25,17 @@ public class MemberServiceImpl implements MemberService{
     2. 중복 아이디가 없을 경우 객체 생성 및 레포지토리 저장
      */
     @Override
-    public Member join(MemberDto member) {
+    public MemberResponseDto.MemberJoinDto join(MemberRequestDto.MemberJoinDto member) {
         Member m = null;
         if (memberRepository.findByMemberId(member.getMemberId()).isPresent()) {
             log.error("아이디 중복 에러");
         }
         else {
-            m = Member.builder()
-                    .memberId(member.getMemberId())
-                    .memberName(member.getMemberName())
-                    .memberPw(member.getMemberPw())
-                    .build();
-                memberRepository.save(m);
+            m = member.toEntity(member.getMemberId(), member.getMemberPw(), member.getMemberName());
+            memberRepository.save(m);
             //member 객체 생성 후 저장
         }
-        return m;
+        return new MemberResponseDto.MemberJoinDto(m);
     }
 
     /*
@@ -48,14 +45,14 @@ public class MemberServiceImpl implements MemberService{
     3. 오류가 없을 경우 로그인 성공 -> 세션에 아이디 정보 저장
      */
     @Override
-    public String login(MemberDto member) {
+    public MemberResponseDto.MemberLoginDto login(MemberRequestDto.MemberLoginDto member) {
         Optional<Member> m = memberRepository.findByMemberId(member.getMemberId());
         if (m.isPresent()){
             if (!m.get().getMemberPw().equals(member.getMemberPw())){
                 log.error("아이디와 비밀번호가 일치하지 않습니다.");
             } else{
                 httpSession.setAttribute("member", m.get().getId());
-                return m.get().getMemberName();
+                return new MemberResponseDto.MemberLoginDto(m.get());
             }
         } else {
             log.error("해당되는 아이디가 없습니다.");
@@ -64,24 +61,26 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public Member profile() {
+    public MemberResponseDto.MemberFindDto profile() {
         Long id = (Long) httpSession.getAttribute("member");
         if (id != null){
             Optional<Member> m = memberRepository.findById(id);
             if (m.isPresent())
-                return m.get();
+                return new MemberResponseDto.MemberFindDto(m.get());
         }
         return null;
     }
 
     @Override
-    public void update(MemberDto member, Long id) {
+    public MemberResponseDto.MemberUpdateDto update(MemberRequestDto.MemberUpdateDto member, Long id) {
         Optional<Member> m = memberRepository.findById(id);
         if (m.isPresent()){
             m.get().setMemberPw(member.getMemberPw());
             m.get().setMemberName(member.getMemberName());
             memberRepository.save(m.get());
+            return new MemberResponseDto.MemberUpdateDto(m.get());
         }
+        return null;
     }
 
     @Override
