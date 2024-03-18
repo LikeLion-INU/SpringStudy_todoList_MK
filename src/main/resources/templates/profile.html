@@ -57,11 +57,10 @@
 </head>
 <body>
 <div class="container">
-    <a href="/todolist"><button>Home</button></a> <!-- Moved Home button to the top -->
+    <a href="/todolist"><button>Todo List</button></a> <!-- Moved Home button to the top -->
     <div th:if="${errorMessage}" class="error-message">
         <p th:text="${errorMessage}"></p>
     </div>
-    <h1>Profile</h1>
     <label>
         ID : <h2 th:text="${member.memberId}"></h2>
     </label>

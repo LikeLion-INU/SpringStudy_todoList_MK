@@ -9,20 +9,32 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
+            background-color: #f9f9f9;
         }
         .todo-container {
             max-width: 600px;
             margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Add position relative */
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
         }
         .todo-input {
-            width: calc(100% - 80px);
+            width: calc(100% - 100px);
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px 0 0 5px;
             font-size: 16px;
+            margin-bottom: 10px;
         }
         .todo-button {
-            width: 80px;
+            width: 100px;
             padding: 10px;
             border: none;
             background-color: #007bff;
@@ -31,14 +43,33 @@
             cursor: pointer;
             font-size: 16px;
         }
+        .profile-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none; /* Remove underline */
+        }
+        .profile-button:hover {
+            background-color: #218838;
+        }
         .todo-item {
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
         }
         .todo-item input[type="checkbox"] {
             margin-right: 10px;
         }
         .todo-item span {
             font-size: 16px;
+            flex: 1;
         }
         .delete-button {
             background-color: #dc3545;
@@ -53,9 +84,9 @@
 </head>
 <body>
 <div class="todo-container">
-    <h1>Todo List</h1>
+    <h1 th:text="${memberName}+'\'s Todo List'">Todo List</h1>
     <form th:action="@{/member/profile}" method="get">
-        <button type="submit">MyProfile</button>
+        <button class="profile-button">My Profile</button>
     </form>
     <form th:action="@{/addTodo}" method="post">
         <input type="text" id="todo-input" name="todoText" class="todo-input" placeholder="Add a new todo...">
@@ -72,6 +103,5 @@
         </li>
     </ul>
 </div>
-
 </body>
 </html>
