@@ -54,7 +54,7 @@ public class MemberController {
              return "login";
          } else{
              List<Todo> todos = todoService.findAll();
-             model.addAttribute("userName", name);
+             model.addAttribute("memberName", name);
              model.addAttribute("todo", todos);
              return "todolist";
          }
