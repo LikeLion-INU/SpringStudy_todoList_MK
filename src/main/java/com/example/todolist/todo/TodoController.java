@@ -56,4 +56,10 @@ public class TodoController {
         return "redirect:/todo/list";
     }
 
+    @PutMapping("/complete/{id}")
+    public String completeTodo(@PathVariable("id") Long id){
+        todoServiceImpl.complete(id);
+        return "redirect:/todo/list";
+    }
+
 }

@@ -105,4 +105,15 @@ public class TodoServiceImpl implements TodoService{
         log.info("투두 업데이트 완료");
     }
 
+    @Transactional
+    public void complete(Long id) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new TodoException(TodoErrorCode.TODO_NOT_FOUND));
+        if (todo.getIsComplete().equals(TodoState.FINISH)){
+            todo.setIsComplete(TodoState.NOT_FINISH);
+        } else {
+            todo.setIsComplete(TodoState.FINISH);
+        }
+        log.info("투두 완료도 설정");
+    }
 }

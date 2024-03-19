@@ -18,7 +18,9 @@ public class Todo {
 
     private String todoText; //할 일
 
-    private TodoState isComplete; //완료했는지
+    @Enumerated(EnumType.STRING)
+    @Column(name = "is_complete")
+    private TodoState isComplete = TodoState.NOT_FINISH; //완료했는지
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "member_id")

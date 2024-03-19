@@ -27,12 +27,17 @@
             color: #333;
         }
         .todo-input {
-            width: calc(100% - 100px);
+            width: calc(100% - 130px); /* Adjusted width for input to accommodate button */
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px 0 0 5px;
             font-size: 16px;
             margin-bottom: 10px;
+            display: inline-block;
+        }
+        .add-button-wrapper {
+            display: inline-block;
+            vertical-align: top;
         }
         .todo-button {
             width: 100px;
@@ -43,6 +48,8 @@
             border-radius: 0 5px 5px 0;
             cursor: pointer;
             font-size: 16px;
+            display: inline-block;
+            vertical-align: top;
         }
         .profile-button {
             position: absolute;
@@ -67,13 +74,33 @@
         }
         .todo-item input[type="checkbox"] {
             margin-right: 10px;
+            /* Hide the default checkbox */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .todo-item input[type="checkbox"]:checked {
+            background-color: #007bff;
+        }
+        .todo-item input[type="checkbox"]:checked::before {
+            content: '\2713'; /* Check mark Unicode character */
+            font-size: 16px;
+            color: #fff;
+            display: block;
+            text-align: center;
+            line-height: 20px;
         }
         .todo-item span {
             font-size: 16px;
             flex: 1;
-            /* 변경된 CSS */
             padding: 10px;
             border-radius: 5px;
+            transition: background-color 0.3s ease; /* Added for smooth transition */
         }
         .delete-button {
             background-color: #dc3545;
@@ -83,6 +110,15 @@
             border-radius: 3px;
             cursor: pointer;
             font-size: 14px;
+            margin-left: auto; /* Add margin to space out the DELETE button */
+        }
+        /* Added CSS for completed todos */
+        .completed {
+            background-color: #d4edda !important;
+            color: #155724;
+        }
+        .completed .todo-text {
+            text-decoration: line-through;
         }
     </style>
 </head>
@@ -94,17 +130,56 @@
     </form>
     <form th:action="@{/todo/add}" method="post">
         <input type="text" id="todo-input" name="todoText" class="todo-input" placeholder="Add a new todo...">
-        <button type="submit" class="todo-button">Add</button>
+        <div class="add-button-wrapper">
+            <button type="submit" class="todo-button">Add</button>
+        </div>
     </form>
     <ul id="todo-list">
-        <li th:each="todo : ${todos}" class="todo-item">
-            <span th:text="${todo.getTodoText()}" class="todo-text"></span>
+        <li th:each="todo : ${todos}" class="todo-item" th:class="${todo.getIsComplete() eq 'FINISH' ? 'completed' : ''}">
+            <form th:action="@{/todo/complete/{id}(id=${todo.id})}" method="post">
+                <input type="checkbox" name="complete" onchange="handleCheckboxChange(this)" th:checked="${todo.getIsComplete() eq 'FINISH'}">
+                <span th:text="${todo.getTodoText()}" class="todo-text"></span>
+                <input type="hidden" name="_method" value="put"/>
+                <input type="hidden" name="todoId" th:value="${todo.id}"/> <!-- Add hidden input for todo ID -->
+            </form>
             <form th:action="@{/todo/delete/{id}(id=${todo.id})}" method="post">
                 <input type="hidden" name="_method" value="delete"/>
-                <button class="delete-button">Delete</button>
+                <button type="submit" class="delete-button">Delete</button> <!-- Move DELETE button inside the form -->
             </form>
         </li>
     </ul>
 </div>
+
+<script th:inline="javascript">
+    /* JavaScript function to handle checkbox change */
+    function handleCheckboxChange(checkbox) {
+        var form = checkbox.closest('form');
+        var span = form.querySelector('.todo-text');
+        var isComplete = span.innerHTML.trim() === 'FINISH'; // Check if todo is already marked as 'FINISH'
+
+        // Toggle 'completed' class based on checkbox state
+        if (checkbox.checked) {
+            form.classList.add('completed');
+            span.style.textDecoration = 'line-through';
+        } else {
+            form.classList.remove('completed');
+            span.style.textDecoration = '';
+        }
+
+        // Submit the form asynchronously to update the todo completion status
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form)
+        }).then(response => {
+            if (!response.ok) {
+                console.error('Error updating todo completion status');
+            }
+        }).catch(error => {
+            console.error('Error updating todo completion status:', error);
+        });
+    }
+</script>
+
 </body>
 </html>
+
