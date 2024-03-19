@@ -4,10 +4,12 @@ import com.example.todolist.member.Member;
 import com.example.todolist.member.dto.MemberRequestDto;
 import com.example.todolist.member.MemberRepository;
 import com.example.todolist.member.dto.MemberResponseDto;
+import com.example.todolist.member.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -60,6 +62,10 @@ public class MemberServiceImpl implements MemberService{
         return null;
     }
 
+    /*
+    프로필 확인
+     */
+
     @Override
     public MemberResponseDto.MemberFindDto profile() {
         Long id = (Long) httpSession.getAttribute("member");
@@ -71,7 +77,12 @@ public class MemberServiceImpl implements MemberService{
         return null;
     }
 
+    /*
+    프로필 업데이트
+     */
+
     @Override
+    @Transactional
     public MemberResponseDto.MemberUpdateDto update(MemberRequestDto.MemberUpdateDto member, Long id) {
         Optional<Member> m = memberRepository.findById(id);
         if (m.isPresent()){
@@ -83,7 +94,12 @@ public class MemberServiceImpl implements MemberService{
         return null;
     }
 
+    /*
+    회원 삭제
+     */
+
     @Override
+    @Transactional
     public void delete(Long id) {
         httpSession.removeAttribute("member");
         memberRepository.deleteById(id);

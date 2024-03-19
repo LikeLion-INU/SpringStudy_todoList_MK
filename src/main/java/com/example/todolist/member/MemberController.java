@@ -3,15 +3,14 @@ package com.example.todolist.member;
 import com.example.todolist.member.dto.MemberRequestDto;
 import com.example.todolist.member.dto.MemberResponseDto;
 import com.example.todolist.member.service.MemberServiceImpl;
-import com.example.todolist.todo.Todo;
-import com.example.todolist.todo.TodoService;
+import com.example.todolist.todo.service.TodoServiceImpl;
+import com.example.todolist.todo.dto.TodoResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -22,7 +21,7 @@ public class MemberController {
 
     private final MemberServiceImpl memberService;
     private final MemberRepository memberRepository;
-    private final TodoService todoService;
+    private final TodoServiceImpl todoServiceImpl;
 
 
     /*
@@ -50,15 +49,12 @@ public class MemberController {
     @PostMapping("/login")
     public String MemberLogin(@ModelAttribute MemberRequestDto.MemberLoginDto member, Model model){
          MemberResponseDto.MemberLoginDto name = memberService.login(member);
-         if (name.getMemberName() == null) {
-             model.addAttribute("errorMessage", "없는 아이디거나 비밀번호가 일치하지 않습니다.");
-             return "login";
-         } else{
-             List<Todo> todos = todoService.findAll();
+         if (name.getMemberName() != null) {
+             TodoResponseDto.TodoListDto todos = todoServiceImpl.findAll();
              model.addAttribute("memberName", name.getMemberName());
-             model.addAttribute("todo", todos);
-             return "todolist";
+             model.addAttribute("todo", todos.getTodos());
          }
+        return "redirect:/todo/list";
     }
 
     /*
@@ -70,11 +66,8 @@ public class MemberController {
         MemberResponseDto.MemberFindDto m = memberService.profile();
         if (m!=null){
             model.addAttribute("member", m);
-            return "profile";
-        } else{
-            model.addAttribute("errorMessage", "다시 로그인해주시기 바랍니다.");
-            return "login";
         }
+        return "profile";
     }
 
     /*
@@ -84,13 +77,8 @@ public class MemberController {
     @GetMapping("/edit/{id}")
     public String ProfileEdit(@PathVariable("id") Long id, Model model){
         Optional<Member> m = memberRepository.findById(id);
-        if (m.isPresent()) {
-            model.addAttribute("member", m.get());
-            return "updateProfile";
-        } else {
-            model.addAttribute("errorMessage", "회원을 찾을 수 없습니다.");
-            return "login";
-        }
+        m.ifPresent(member -> model.addAttribute("member", member));
+        return "updateProfile";
     }
 
     /*
@@ -98,7 +86,7 @@ public class MemberController {
     - 수정사항 업데이트
      */
     @PutMapping("/update/{id}")
-    public String ProfileUpdate(@ModelAttribute MemberRequestDto.MemberUpdateDto member, @PathVariable Long id){
+    public String ProfileUpdate(@ModelAttribute MemberRequestDto.MemberUpdateDto member, @PathVariable("id") Long id){
         memberService.update(member,id);
         return "redirect:/member/profile";
     }
@@ -108,7 +96,7 @@ public class MemberController {
     - 회원 탈퇴를 누르면 확인 메세지 한번 더
      */
     @DeleteMapping("/delete/{id}")
-    public String ProfileDelete(@PathVariable Long id){
+    public String ProfileDelete(@PathVariable("id") Long id){
         log.info("회원 삭제");
         memberService.delete(id);
         return "redirect:/";
