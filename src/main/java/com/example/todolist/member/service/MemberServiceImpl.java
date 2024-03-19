@@ -1,5 +1,7 @@
 package com.example.todolist.member.service;
 
+import com.example.todolist.erros.errorcode.MemberErrorCode;
+import com.example.todolist.erros.exception.MemberException;
 import com.example.todolist.member.Member;
 import com.example.todolist.member.dto.MemberRequestDto;
 import com.example.todolist.member.MemberRepository;
@@ -28,16 +30,16 @@ public class MemberServiceImpl implements MemberService{
      */
     @Override
     public MemberResponseDto.MemberJoinDto join(MemberRequestDto.MemberJoinDto member) {
-        Member m = null;
         if (memberRepository.findByMemberId(member.getMemberId()).isPresent()) {
             log.error("아이디 중복 에러");
+            throw new MemberException(MemberErrorCode.MEMBER_VALIDATION);
         }
         else {
-            m = member.toEntity(member.getMemberId(), member.getMemberPw(), member.getMemberName());
+            Member m = member.toEntity(member.getMemberId(), member.getMemberPw(), member.getMemberName());
             memberRepository.save(m);
+            return new MemberResponseDto.MemberJoinDto(m);
             //member 객체 생성 후 저장
         }
-        return new MemberResponseDto.MemberJoinDto(m);
     }
 
     /*

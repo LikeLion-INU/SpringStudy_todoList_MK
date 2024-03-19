@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({IllegalArgumentException.class, MemberException.class})
+    @ExceptionHandler({IllegalArgumentException.class})
     public ModelAndView handleIllegalArgument(IllegalArgumentException e){
         ModelAndView mav = new ModelAndView();
         log.warn("handleIllegalArgument",e);
@@ -39,4 +39,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         mav.setViewName("login");
         return mav;
     }
+
+    @ExceptionHandler({MemberException.class})
+    public ModelAndView handleMemberException(MemberException e){
+        ModelAndView mav = new ModelAndView();
+        log.warn("MemberException",e);
+        mav.addObject("errorMessage",e.getErrorCode().getMessage());
+        if (e.getErrorCode()== MemberErrorCode.MEMBER_NOT_FOUND){
+            mav.setViewName("login");
+        } else if (e.getErrorCode()== MemberErrorCode.MEMBER_VALIDATION){
+            mav.setViewName("join");
+        }
+        return mav;
+    }
+
 }
