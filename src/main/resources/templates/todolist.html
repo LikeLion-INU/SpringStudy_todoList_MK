@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo List</title>
     <style>
+        /* 기존 CSS 스타일 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -18,7 +19,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative; /* Add position relative */
+            position: relative;
         }
         h1 {
             text-align: center;
@@ -54,7 +55,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            text-decoration: none; /* Remove underline */
+            text-decoration: none;
         }
         .profile-button:hover {
             background-color: #218838;
@@ -70,6 +71,9 @@
         .todo-item span {
             font-size: 16px;
             flex: 1;
+            /* 변경된 CSS */
+            padding: 10px;
+            border-radius: 5px;
         }
         .delete-button {
             background-color: #dc3545;
@@ -88,15 +92,14 @@
     <form th:action="@{/member/profile}" method="get">
         <button class="profile-button">My Profile</button>
     </form>
-    <form th:action="@{/addTodo}" method="post">
+    <form th:action="@{/todo/add}" method="post">
         <input type="text" id="todo-input" name="todoText" class="todo-input" placeholder="Add a new todo...">
         <button type="submit" class="todo-button">Add</button>
     </form>
     <ul id="todo-list">
         <li th:each="todo : ${todos}" class="todo-item">
-            <input type="checkbox">
-            <span th:text="${todo.todoText}"></span>
-            <form th:action="@{/deleteTodo/{id}(id=${todo.id})}" method="post">
+            <span th:text="${todo.getTodoText()}" class="todo-text"></span>
+            <form th:action="@{/todo/delete/{id}(id=${todo.id})}" method="post">
                 <input type="hidden" name="_method" value="delete"/>
                 <button class="delete-button">Delete</button>
             </form>
