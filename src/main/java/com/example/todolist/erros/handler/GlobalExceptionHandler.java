@@ -8,6 +8,7 @@ import com.example.todolist.member.MemberController;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,37 +21,27 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({IllegalArgumentException.class})
-    public ModelAndView handleIllegalArgument(IllegalArgumentException e){
-        ModelAndView mav = new ModelAndView();
+    public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException e){
         log.warn("handleIllegalArgument",e);
 
         ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
-        mav.addObject("errorMessage", errorCode.getMessage());
-        mav.setViewName("login");
-        return mav;
+        return ResponseEntity.status(errorCode.getHttpStatus().value())
+                .body(errorCode.getMessage());
     }
 
     @ExceptionHandler({NullPointerException.class})
-    public ModelAndView handleNullPointer(NullPointerException e){
-        ModelAndView mav = new ModelAndView();
+    public ResponseEntity<?> handleNullPointer(NullPointerException e){
         log.warn("nullPointerError", e);
         ErrorCode errorCode = MemberErrorCode.MEMBER_NOT_FOUND;
-        mav.addObject("errorMessage",errorCode.getMessage());
-        mav.setViewName("login");
-        return mav;
+        return ResponseEntity.status(errorCode.getHttpStatus().value())
+                .body(errorCode.getMessage());
     }
 
     @ExceptionHandler({MemberException.class})
-    public ModelAndView handleMemberException(MemberException e){
-        ModelAndView mav = new ModelAndView();
+    public ResponseEntity<?> handleMemberException(MemberException e){
         log.warn("MemberException",e);
-        mav.addObject("errorMessage",e.getErrorCode().getMessage());
-        if (e.getErrorCode()== MemberErrorCode.MEMBER_NOT_FOUND){
-            mav.setViewName("login");
-        } else if (e.getErrorCode()== MemberErrorCode.MEMBER_VALIDATION){
-            mav.setViewName("join");
-        }
-        return mav;
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus().value())
+                .body(e.getMessage());
     }
 
 }

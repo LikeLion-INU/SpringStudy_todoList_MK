@@ -7,13 +7,13 @@ public interface TodoService {
     /*
     투두 추가
      */
-    void add(TodoRequestDto.TodoAddDto todoAddDto);
+    TodoResponseDto add(TodoRequestDto.TodoAddDto todoAddDto);
     /*
     투두 전체 조회
      */
     TodoResponseDto.TodoListDto findAll();
 
-    void delete(Long id);
-    void update(TodoRequestDto.TodoUpdateDto todoUpdateDto);
+    String delete(Long id);
+    TodoResponseDto update(TodoRequestDto.TodoUpdateDto todoUpdateDto, Long id);
 
 }

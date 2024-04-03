@@ -26,13 +26,6 @@ public class MemberRequestDto {
     public static class MemberLoginDto{
         private String memberId;
         private String memberPw;
-
-        public Member toEntity(String memberId, String memberPw){
-            return Member.builder()
-                    .memberId(memberId)
-                    .memberPw(memberPw)
-                    .build();
-        }
     }
 
     public static class MemberFindDto extends MemberRequestDto{
@@ -43,13 +36,6 @@ public class MemberRequestDto {
     public static class MemberUpdateDto{
         private String memberPw;
         private String memberName;
-
-        public Member toEntity(String memberName, String memberPw){
-            return Member.builder()
-                    .memberName(memberName)
-                    .memberPw(memberPw)
-                    .build();
-        }
     }
 
 }

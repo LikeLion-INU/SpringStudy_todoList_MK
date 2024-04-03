@@ -25,6 +25,6 @@ public interface MemberService {
     /*
     DELETE
      */
-    void delete(Long id);
+    String delete(Long id);
 
 }

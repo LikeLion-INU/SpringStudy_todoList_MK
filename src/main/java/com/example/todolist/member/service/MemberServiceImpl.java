@@ -1,5 +1,6 @@
 package com.example.todolist.member.service;
 
+import com.example.todolist.erros.errorcode.CommonErrorCode;
 import com.example.todolist.erros.errorcode.MemberErrorCode;
 import com.example.todolist.erros.exception.MemberException;
 import com.example.todolist.member.Member;
@@ -50,18 +51,15 @@ public class MemberServiceImpl implements MemberService{
      */
     @Override
     public MemberResponseDto.MemberLoginDto login(MemberRequestDto.MemberLoginDto member) {
-        Optional<Member> m = memberRepository.findByMemberId(member.getMemberId());
-        if (m.isPresent()){
-            if (!m.get().getMemberPw().equals(member.getMemberPw())){
-                log.error("아이디와 비밀번호가 일치하지 않습니다.");
-            } else{
-                httpSession.setAttribute("member", m.get().getId());
-                return new MemberResponseDto.MemberLoginDto(m.get());
-            }
-        } else {
-            log.error("해당되는 아이디가 없습니다.");
+        Member m = memberRepository.findByMemberId(member.getMemberId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_LOGIN_ERROR));
+        if (!m.getMemberPw().equals(member.getMemberPw())){
+            log.error("아이디와 비밀번호가 일치하지 않습니다.");
+            throw new MemberException(MemberErrorCode.MEMBER_LOGIN_ERROR);
+        } else{
+            httpSession.setAttribute("member", m.getId());
+            return new MemberResponseDto.MemberLoginDto(m);
         }
-        return null;
     }
 
     /*
@@ -71,12 +69,13 @@ public class MemberServiceImpl implements MemberService{
     @Override
     public MemberResponseDto.MemberFindDto profile() {
         Long id = (Long) httpSession.getAttribute("member");
-        if (id != null){
-            Optional<Member> m = memberRepository.findById(id);
-            if (m.isPresent())
-                return new MemberResponseDto.MemberFindDto(m.get());
+        if (id != null) {
+            Member m = memberRepository.findById(id)
+                    .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+            return new MemberResponseDto.MemberFindDto(m);
+        } else {
+            throw new RuntimeException(String.valueOf(CommonErrorCode.INVALID_PARAMETER));
         }
-        return null;
     }
 
     /*
@@ -86,14 +85,11 @@ public class MemberServiceImpl implements MemberService{
     @Override
     @Transactional
     public MemberResponseDto.MemberUpdateDto update(MemberRequestDto.MemberUpdateDto member, Long id) {
-        Optional<Member> m = memberRepository.findById(id);
-        if (m.isPresent()){
-            m.get().setMemberPw(member.getMemberPw());
-            m.get().setMemberName(member.getMemberName());
-            memberRepository.save(m.get());
-            return new MemberResponseDto.MemberUpdateDto(m.get());
-        }
-        return null;
+        Member m = memberRepository.findById(id)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        m.toUpdate(member.getMemberPw(), member.getMemberName());
+        memberRepository.save(m);
+        return new MemberResponseDto.MemberUpdateDto(m);
     }
 
     /*
@@ -102,8 +98,9 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public String delete(Long id) {
         httpSession.removeAttribute("member");
         memberRepository.deleteById(id);
+        return "회원 삭제";
     }
 }

@@ -7,13 +7,14 @@ import com.example.todolist.todo.service.TodoServiceImpl;
 import com.example.todolist.todo.dto.TodoResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/member")
@@ -23,22 +24,16 @@ public class MemberController {
     private final MemberRepository memberRepository;
     private final TodoServiceImpl todoServiceImpl;
 
-
     /*
     회원가입
     - 회원가입 설정 후 아이디가 존재하는 오류라면 다시 회원가입 페이지로 돌아가기 (에러 메세지 띄우기)
     - 회원가입 성공 시 Home 화면으로 이동
      */
     @PostMapping("/join")
-    public String MemberJoin(@ModelAttribute MemberRequestDto.MemberJoinDto member, Model model){
+    public ResponseEntity<?> MemberJoin(@RequestBody MemberRequestDto.MemberJoinDto member, Model model){
         System.out.println(member.getMemberId());
-        MemberResponseDto.MemberJoinDto m = memberService.join(member);
-        if (m != null) {
-            return "redirect:/";
-        } else {
-            model.addAttribute("errorMessage", "이미 존재하는 아이디입니다.");
-            return "join";
-        }
+        return ResponseEntity.ok()
+                .body(memberService.join(member));
     }
 
     /*
@@ -47,14 +42,9 @@ public class MemberController {
     - 로그인 실패 시 에러 띄우기
      */
     @PostMapping("/login")
-    public String MemberLogin(@ModelAttribute MemberRequestDto.MemberLoginDto member, Model model){
-         MemberResponseDto.MemberLoginDto name = memberService.login(member);
-         if (name.getMemberName() != null) {
-             TodoResponseDto.TodoListDto todos = todoServiceImpl.findAll();
-             model.addAttribute("memberName", name.getMemberName());
-             model.addAttribute("todo", todos.getTodos());
-         }
-        return "redirect:/todo/list";
+    public ResponseEntity<?> MemberLogin(@RequestBody MemberRequestDto.MemberLoginDto member, Model model){
+         return ResponseEntity.ok()
+                 .body(memberService.login(member));
     }
 
     /*
@@ -62,12 +52,9 @@ public class MemberController {
     - 확인이 안될 경우 세션 만료로 로그인 다시 실행
      */
     @GetMapping("/profile")
-    public String MemberProfile(Model model){
-        MemberResponseDto.MemberFindDto m = memberService.profile();
-        if (m!=null){
-            model.addAttribute("member", m);
-        }
-        return "profile";
+    public ResponseEntity<?> MemberProfile(){
+        return ResponseEntity.ok()
+                .body(memberService.profile());
     }
 
     /*
@@ -86,9 +73,9 @@ public class MemberController {
     - 수정사항 업데이트
      */
     @PutMapping("/update/{id}")
-    public String ProfileUpdate(@ModelAttribute MemberRequestDto.MemberUpdateDto member, @PathVariable("id") Long id){
-        memberService.update(member,id);
-        return "redirect:/member/profile";
+    public ResponseEntity<?> ProfileUpdate(@RequestBody MemberRequestDto.MemberUpdateDto member, @PathVariable("id") Long id){
+        return ResponseEntity.ok()
+                .body(memberService.update(member,id));
     }
 
     /*
@@ -96,10 +83,10 @@ public class MemberController {
     - 회원 탈퇴를 누르면 확인 메세지 한번 더
      */
     @DeleteMapping("/delete/{id}")
-    public String ProfileDelete(@PathVariable("id") Long id){
+    public ResponseEntity<?> ProfileDelete(@PathVariable("id") Long id){
         log.info("회원 삭제");
-        memberService.delete(id);
-        return "redirect:/";
+        return ResponseEntity.ok()
+                .body(memberService.delete(id));
     }
 
 

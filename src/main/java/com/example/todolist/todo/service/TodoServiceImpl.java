@@ -46,7 +46,7 @@ public class TodoServiceImpl implements TodoService{
     투두 추가
      */
     @Override
-    public void add(TodoRequestDto.TodoAddDto todoAddDto) {
+    public TodoResponseDto add(TodoRequestDto.TodoAddDto todoAddDto) {
         Member m = findMember(); //현재 사용자 찾기
         Member member = memberRepository.findById(m.getId())
                 .orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND)); //사용자 객체 찾기
@@ -60,6 +60,7 @@ public class TodoServiceImpl implements TodoService{
         todoRepository.save(todo);
         m.addTodo(todo);
         log.info("투두 저장 완료");
+        return new TodoResponseDto(todo);
 
     }
 
@@ -83,10 +84,12 @@ public class TodoServiceImpl implements TodoService{
      */
     @Override
     @Transactional
-    public void delete(Long id) {
-        Optional<Todo> todo = todoRepository.findById(id);
-        todo.ifPresent(todo1 -> todoRepository.deleteById(todo1.getId()));
+    public String delete(Long id) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new TodoException(TodoErrorCode.TODO_NOT_FOUND));
+        todoRepository.deleteById(todo.getId());
         log.info("투두 삭제 완료");
+        return "투두 삭제 완료";
     }
 
     /*
@@ -94,19 +97,19 @@ public class TodoServiceImpl implements TodoService{
      */
     @Override
     @Transactional
-    public void update(TodoRequestDto.TodoUpdateDto todoUpdateDto) {
-        Todo todo = todoRepository.findById(todoUpdateDto.getId())
+    public TodoResponseDto update(TodoRequestDto.TodoUpdateDto todoUpdateDto, Long id) {
+        Todo todo = todoRepository.findById(id)
                 .orElseThrow(() -> new TodoException(TodoErrorCode.TODO_NOT_FOUND));
 
         todo.setTodoText(todoUpdateDto.getTodoText());
-        todo.setIsComplete(todoUpdateDto.getIsComplete());
 
         todoRepository.save(todo);
         log.info("투두 업데이트 완료");
+        return new TodoResponseDto(todo);
     }
 
     @Transactional
-    public void complete(Long id) {
+    public TodoResponseDto complete(Long id) {
         Todo todo = todoRepository.findById(id)
                 .orElseThrow(() -> new TodoException(TodoErrorCode.TODO_NOT_FOUND));
         if (todo.getIsComplete().equals(TodoState.FINISH)){
@@ -115,5 +118,6 @@ public class TodoServiceImpl implements TodoService{
             todo.setIsComplete(TodoState.FINISH);
         }
         log.info("투두 완료도 설정");
+        return new TodoResponseDto(todo);
     }
 }

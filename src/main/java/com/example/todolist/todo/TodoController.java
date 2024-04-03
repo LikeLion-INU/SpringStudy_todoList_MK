@@ -5,11 +5,12 @@ import com.example.todolist.todo.dto.TodoRequestDto;
 import com.example.todolist.todo.dto.TodoResponseDto;
 import com.example.todolist.todo.service.TodoServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/todo")
 public class TodoController {
@@ -22,44 +23,43 @@ public class TodoController {
     - 항상 유저 이름과 같이 반환하기
      */
     @GetMapping("/list")
-    public String index(Model model){
-        TodoResponseDto.TodoListDto todo = todoServiceImpl.findAll();
-        model.addAttribute("todos", todo.getTodos());
-        model.addAttribute("memberName", todo.getMember().getMemberName());
-        return "todolist";
+    public ResponseEntity<?> index(){
+        return ResponseEntity.ok()
+                .body(todoServiceImpl.findAll());
     }
 
     /*
     투두 추가
      */
     @PostMapping("/add")
-    public String addTodo(@ModelAttribute TodoRequestDto.TodoAddDto todo){
-        todoServiceImpl.add(todo);
-        return "redirect:/todo/list";
+    public ResponseEntity<?> addTodo(@RequestBody TodoRequestDto.TodoAddDto todo){
+        return ResponseEntity.ok()
+                .body(todoServiceImpl.add(todo));
     }
 
     /*
     투두 수정
      */
     @PutMapping("/update/{id}")
-    public String updateTodo(@ModelAttribute TodoRequestDto.TodoUpdateDto todo){
-        todoServiceImpl.update(todo);
-        return "redirect:/todo/list";
+    public ResponseEntity<?> updateTodo(@RequestBody TodoRequestDto.TodoUpdateDto todo,
+        @PathVariable("id") Long id){
+        return ResponseEntity.ok()
+                .body(todoServiceImpl.update(todo, id));
     }
 
     /*
     투두 삭제
      */
     @DeleteMapping("/delete/{id}")
-    public String deleteTodo(@PathVariable("id") Long id){
-        todoServiceImpl.delete(id);
-        return "redirect:/todo/list";
+    public ResponseEntity<?> deleteTodo(@PathVariable("id") Long id){
+        return ResponseEntity.ok()
+                .body(todoServiceImpl.delete(id));
     }
 
     @PutMapping("/complete/{id}")
-    public String completeTodo(@PathVariable("id") Long id){
-        todoServiceImpl.complete(id);
-        return "redirect:/todo/list";
+    public ResponseEntity<?> completeTodo(@PathVariable("id") Long id){
+        return ResponseEntity.ok()
+                .body(todoServiceImpl.complete(id));
     }
 
 }
